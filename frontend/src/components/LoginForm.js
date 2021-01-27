@@ -1,66 +1,95 @@
-import { Button, FormControl, FormHelperText, TextField } from '@material-ui/core';
+import { Button, FormControl, TextField } from '@material-ui/core';
+import { Formik } from 'formik';
 import React from 'react';
+import * as Yup from 'yup';
 import { AuthContext } from '../contexts/AuthContext';
 
-class LoginForm extends React.Component {
+const SignInSchema = Yup.object().shape({
+    username: Yup.string()
+      .required('Required'),
+    password: Yup.string()
+      .min(8, 'password must be 8 characters long!')
+      .required('Required'),
+  });
 
-    constructor(props){
-        super(props)
+function LoginForm(props) {
 
-        this.state = {
-            username: null,
-            password: null,
-           /* errors: {
-                username: "required",
-                password: "required"
-            }*/
-        };
-    }
+    return(
+<AuthContext.Consumer>{ ( authContext ) => {
+    const { changeAuthStatus, setUserName } = authContext;
 
-    handleInputChange = (event) => {
-        event.preventDefault();
-        const name = event.target.id;
-        const value = event.target.value;
-        this.setState({
-           [ name] : value
-        })
-    }
-
-    handleSubmit = (event) => {
-        
-        event.preventDefault();
-        console.log( this.state);
-        this.props.value.history.push('/');
-    }
-    
-    render() {
-        return(
-            <AuthContext.Consumer>{ ( authContext ) => {
-                const { changeAuthStatus } = authContext;
-                //const { errors } = this.state;
-                return(
-                    <form style={{margin:" 5% 25%", width:"50%",}} onSubmit={this.handleSubmit & changeAuthStatus} >
-                        <div>
-                            <FormControl error fullWidth>
-                            <TextField id="username" label="username"  color="secondary" required fullWidth onChange={this.handleInputChange}></TextField>
-                            {/*{errors.username.length > 0 && <FormHelperText id="component-error-text">{errors.username}</FormHelperText>}*/}
-                            </FormControl>
-                        </div>
-                        <div>
-                            <FormControl error fullWidth>
-                            <TextField id="password" label="password"  color="secondary" required fullWidth onChange={this.handleInputChange} ></TextField>
-                            {/*{errors.password.length > 0 && <FormHelperText id="component-error-text">{errors.password}</FormHelperText>}*/}
-                            </FormControl>
-                        </div>
-                        <Button type="Submit" variant="contained" color="secondary" style={{marginTop:"5%", }} fullWidth >
-                            Login
-                        </Button>
-                    </form>          
-                )
+    return (
+        <div>
+        <Formik
+            initialValues={{
+            username: '',
+            password: ''
             }}
-        </AuthContext.Consumer>
-        )
-    }
+            validationSchema={SignInSchema}
+            onSubmit={values => {
+            // same shape as initial values
+            console.log(values);
+            changeAuthStatus();
+            setUserName(values.username);
+            props.value.history.push("./");
+            }}
+        >
+            {({ 
+                values,
+                errors, 
+                touched,
+                handleChange,
+                handleBlur,
+                handleSubmit, 
+            }) => (
+            <form style={{margin:" 5% 25%", width:"50%",}} onSubmit={handleSubmit}>
+                <div style={{marginBottom:"3%"}}>
+                <FormControl fullWidth>
+                    <TextField 
+                        id="username" 
+                        label="username"
+                        variant="outlined"
+                        color="secondary"
+                        required 
+                        fullWidth 
+                        onChange={handleChange}
+                        onBlur={handleBlur}  
+                        value={values.username}
+                        error={!errors.username}
+                        helperText={errors.username} />
+                </FormControl>                   
+                </div>
+                
+                <div>
+                <FormControl fullWidth>
+                <TextField 
+                        id="password" 
+                        type="password"
+                        variant="outlined"
+                        label="password"
+                        color="secondary"
+                        required 
+                        fullWidth 
+                        onChange={handleChange}
+                        onBlur={handleBlur}  
+                        value={values.password}
+                        error={!errors.password}
+                        helperText={errors.password} />
+                </FormControl>
+                </div>
+                <Button type="Submit" variant="contained" color="secondary" style={{marginTop:"5%", }} fullWidth  >
+                    Login
+                </Button>
+            </form>
+            )}
+
+        </Formik>
+    </div>
+    )
+            }}
+    </AuthContext.Consumer>
+    )
+    
 }
 
 export default LoginForm;

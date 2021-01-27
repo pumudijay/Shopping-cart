@@ -2,7 +2,7 @@ import { AppBar, Paper, Tab } from '@material-ui/core';
 import { TabList, TabPanel } from '@material-ui/lab';
 import TabContext from '@material-ui/lab/TabContext';
 import React from 'react';
-import LoginForm from './LoginForm'
+import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
 class LoginHeader extends React.Component {
